@@ -1,12 +1,15 @@
 
 'use client'
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
 import { CheckCircle, XCircle, ExternalLink, Clock, LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 
 type Game = {
     id: string
@@ -84,7 +87,7 @@ export default function AdminDashboard() {
         <div className="container py-10 max-w-screen-xl">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                    <h1 className="text-3xl font-bold font-display">Admin Dashboard</h1>
                     <p className="text-sm text-muted-foreground mt-1">Logged in as {user?.email}</p>
                 </div>
 
@@ -97,10 +100,10 @@ export default function AdminDashboard() {
                         <span className="w-3 h-3 rounded-full bg-green-500"></span>
                         <span className="text-sm font-medium">Approved: {games.filter(g => g.status === 'approved').length}</span>
                     </div>
-                    <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-red-500 hover:bg-red-50 p-2 rounded-md transition-colors">
+                    <Button variant="destructive" size="sm" onClick={handleLogout} className="gap-2">
                         <LogOut className="h-4 w-4" />
                         Logout
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -140,26 +143,30 @@ export default function AdminDashboard() {
                                         {new Date(game.created_at).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4">
-                                        {game.status === 'pending' && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500"><Clock className="mr-1 h-3 w-3" /> Pending</span>}
-                                        {game.status === 'approved' && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500"><CheckCircle className="mr-1 h-3 w-3" /> Live</span>}
-                                        {game.status === 'rejected' && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500"><XCircle className="mr-1 h-3 w-3" /> Rejected</span>}
+                                        {game.status === 'pending' && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-600"><Clock className="mr-1 h-3 w-3" /> Pending</span>}
+                                        {game.status === 'approved' && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-600"><CheckCircle className="mr-1 h-3 w-3" /> Live</span>}
+                                        {game.status === 'rejected' && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-600"><XCircle className="mr-1 h-3 w-3" /> Rejected</span>}
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            <button
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
                                                 onClick={() => updateStatus(game.id, 'approved')}
-                                                className="p-2 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-full transition-colors"
+                                                className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100"
                                                 title="Approve"
                                             >
                                                 <CheckCircle className="h-5 w-5" />
-                                            </button>
-                                            <button
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
                                                 onClick={() => updateStatus(game.id, 'rejected')}
-                                                className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full transition-colors"
+                                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-100"
                                                 title="Reject"
                                             >
                                                 <XCircle className="h-5 w-5" />
-                                            </button>
+                                            </Button>
                                         </div>
                                     </td>
                                 </tr>
