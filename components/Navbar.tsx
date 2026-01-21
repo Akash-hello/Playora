@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebouncedCallback } from "use-debounce"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 
 const categories = [
     "All Games",
@@ -26,7 +26,7 @@ const categories = [
     "Arcade",
 ]
 
-export function Navbar() {
+function NavbarContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -75,7 +75,63 @@ export function Navbar() {
         }
     }, [searchParams])
 
+    return (
+        <>
+            {/* Search & Category */}
+            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center lg:max-w-2xl lg:px-8">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        type="text"
+                        placeholder="Search games..."
+                        value={searchQuery}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        className="h-11 border-border bg-secondary pl-10 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                    />
+                </div>
+                <Select value={category} onValueChange={onCategoryChange}>
+                    <SelectTrigger className="h-11 w-full border-border bg-secondary sm:w-[180px]">
+                        <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent className="border-border bg-card">
+                        {categories.map((cat) => (
+                            <SelectItem
+                                key={cat}
+                                value={cat.toLowerCase().replace(" ", "-")} // e.g. "all-games", "puzzle"
+                                className="focus:bg-secondary"
+                            >
+                                {cat}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+        </>
+    )
+}
 
+function NavbarSearchFallback() {
+    return (
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center lg:max-w-2xl lg:px-8">
+            <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    type="text"
+                    placeholder="Search games..."
+                    disabled
+                    className="h-11 border-border bg-secondary pl-10 text-foreground placeholder:text-muted-foreground"
+                />
+            </div>
+            <Select disabled>
+                <SelectTrigger className="h-11 w-full border-border bg-secondary sm:w-[180px]">
+                    <SelectValue placeholder="Category" />
+                </SelectTrigger>
+            </Select>
+        </div>
+    )
+}
+
+export function Navbar() {
     return (
         <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
             <div className="container mx-auto px-4 py-4 max-w-screen-2xl">
@@ -94,35 +150,10 @@ export function Navbar() {
                         </h1>
                     </Link>
 
-                    {/* Search & Category */}
-                    <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center lg:max-w-2xl lg:px-8">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                type="text"
-                                placeholder="Search games..."
-                                value={searchQuery}
-                                onChange={(e) => onSearchChange(e.target.value)}
-                                className="h-11 border-border bg-secondary pl-10 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
-                            />
-                        </div>
-                        <Select value={category} onValueChange={onCategoryChange}>
-                            <SelectTrigger className="h-11 w-full border-border bg-secondary sm:w-[180px]">
-                                <SelectValue placeholder="Category" />
-                            </SelectTrigger>
-                            <SelectContent className="border-border bg-card">
-                                {categories.map((cat) => (
-                                    <SelectItem
-                                        key={cat}
-                                        value={cat.toLowerCase().replace(" ", "-")} // e.g. "all-games", "puzzle"
-                                        className="focus:bg-secondary"
-                                    >
-                                        {cat}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    {/* Search & Category with Suspense */}
+                    <Suspense fallback={<NavbarSearchFallback />}>
+                        <NavbarContent />
+                    </Suspense>
 
                     {/* Submit Button */}
                     <Link href="/submit">
